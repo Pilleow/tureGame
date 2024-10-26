@@ -12,16 +12,20 @@ export class TileMap {
     tileLength: number;
     tileThickness: number;
     treasureEveryTiles: number;
+    treasuresTotalCount: number;
 
     constructor(tileWidth: number, tileThickness: number) {
-        this.w = 0;
-        this.h = 0;
         this.tileLength = tileWidth;
         this.tileThickness = tileThickness;
+
+        this.w = 0;
+        this.h = 0;
         this.roomCount = 0;
+        this.treasureEveryTiles = 15;
+        this.treasuresTotalCount = 0;
+
         this.mapArr = Array.from({length: this.h}, () => Array(this.w).fill(null));
         this.tilesLocationArr = [];
-        this.treasureEveryTiles = 15;
     }
 
     getTileNeighbours(t: Tile): { [key: string]: (Tile | null) } {
@@ -38,6 +42,7 @@ export class TileMap {
         this.h = mapSize;
         this.w = mapSize;
         this.roomCount = 0;
+        this.treasuresTotalCount = 0;
 
         this.mapArr = Array.from({length: this.h}, () => Array(this.w).fill(null));
         this.tilesLocationArr = Array(roomCount + 1).fill(null);
@@ -132,13 +137,14 @@ export class TileMap {
                 nextToTreasureLocation = false;
                 neighbours = Object.values(this.getTileNeighbours(tempTile)!);
                 for (const neighbour of neighbours) {
-                    if (neighbour && neighbour.tileType === TileType.TREASURE) {
+                    if (neighbour && neighbour.type === TileType.TREASURE) {
                         nextToTreasureLocation = true;
                         break;
                     }
                 }
                 if (!nextToTreasureLocation) {
-                    tempTile.tileType = TileType.TREASURE;
+                    tempTile.type = TileType.TREASURE;
+                    this.treasuresTotalCount++;
                     break;
                 }
                 j++;

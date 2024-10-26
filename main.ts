@@ -26,7 +26,7 @@ let cameraPosDelta: Vector2 = new Vector2(0, 0);
 
 function start() {
     map = new TileMap(100, 1);
-    map.generateMap(400);
+    map.generateMap(180);
     player = new Player(map.tilesLocationArr[0]!.x, map.tilesLocationArr[0]!.y, map.tileLength * 0.3, map.tileLength * 0.3, 'blue');
     map.updateTilesVisibility(player);
     cameraPos.set(
@@ -48,8 +48,11 @@ function update() {
 
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     map.draw(ctx, cameraPos.x, cameraPos.y);
     player.draw(ctx, map, cameraPos.x, cameraPos.y);
+
+    player.drawPoints(ctx, map);
 }
 
 function mainloop() {

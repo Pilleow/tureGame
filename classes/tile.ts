@@ -14,7 +14,7 @@ export class Tile {
     width: number;
     height: number;
     thickness: number;
-    tileType: TileType;
+    type: TileType;
     treasureSprite: HTMLImageElement;
     memoryTime: number;
     maxMemoryTime: number;
@@ -25,7 +25,7 @@ export class Tile {
         this.width = width;
         this.height = height;
         this.thickness = thickness;
-        this.tileType = TileType.NORMAL;
+        this.type = TileType.NORMAL;
         this.treasureSprite = new Image();
         this.treasureSprite.src = "../sprites/treasure.png";
         this.memoryTime = 0;
@@ -53,7 +53,7 @@ export class Tile {
         ctx.rect(this.x * this.width + xD, this.y * this.height + yD, this.width, this.height);
         ctx.fill();
 
-        if (this.tileType == TileType.TREASURE) {
+        if (this.type == TileType.TREASURE) {
             ctx.drawImage(
                 this.treasureSprite, 0, 0, 512, 512,
                 x + this.width * 0.1, y + this.height * 0.1,
