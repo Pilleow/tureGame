@@ -1,0 +1,22 @@
+{
+  "name": "turegame",
+  "version": "1.0.0",
+  "main": "main.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^22.7.9"
+  },
+  "dependencies": {
+    "tsc": "^2.0.4",
+    "typescript": "^5.6.3",
+    "undici-types": "^6.19.8"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
