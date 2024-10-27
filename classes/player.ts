@@ -1,9 +1,9 @@
 import {TileMap} from "./tileMap.js";
 import {Tile, TileType} from "./tile.js";
+import {Enemy, SewerynEnemy} from "./enemy.js";
 
 
 export class Player {
-    color: string;
     treasurePickupSoundSrc: string;
     x: number;
     y: number;
@@ -15,34 +15,38 @@ export class Player {
     hasMovedDown: boolean;
     hasMovedLeft: boolean;
     hasMovedRight: boolean;
+    positionJustChanged: boolean;
     sprite: HTMLImageElement;
     treasureSprite: HTMLImageElement;
     startSoundPlayed: boolean;
+    isAlive: boolean;
 
-    constructor(x: number, y: number, width: number, height: number, color: string) {
+    constructor(x: number, y: number, width: number, height: number) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.color = color;
 
         this.visionRange = 4;
         this.treasureGathered = 0;
+        this.positionJustChanged = false;
 
         this.hasMovedUp = false;
         this.hasMovedDown = false;
         this.hasMovedLeft = false;
         this.hasMovedRight = false;
         this.startSoundPlayed = false;
+        this.isAlive = true;
 
         this.sprite = new Image();
-        this.sprite.src = "../sprites/player.png";
         this.treasureSprite = new Image();
+        this.sprite.src = "../sprites/player.png";
         this.treasureSprite.src = "../sprites/treasure.png";
+
         this.treasurePickupSoundSrc = "../sounds/treasurePickup.mp3";
     }
 
-    updateMovement(keys: { [key: string]: boolean }, map: TileMap) {
+    updateMovement(keys: { [key: string]: boolean }, map: TileMap, enemies: Enemy[]) {
         let positionChanged: boolean = false;
         if (keys["w"]) {
             if (!this.hasMovedUp && this.y > 0 && map.mapArr[this.y - 1][this.x] != null) {
@@ -78,16 +82,25 @@ export class Player {
                 this.startSoundPlayed = true;
             }
             map.updateTilesVisibility(this);
-            this.processTile(map);
+            this.processTile(map, enemies);
         }
+        this.positionJustChanged = positionChanged;
     }
 
-    processTile(map: TileMap) {
+    hasJustMoved(): boolean {
+        return this.positionJustChanged;
+    }
+
+    processTile(map: TileMap, enemies: Enemy[]) {
         let tile: Tile = map.mapArr[this.y][this.x]!;
         if (tile.type === TileType.TREASURE) {
             this.treasureGathered++;
             tile.type = TileType.NORMAL;
             new Audio(this.treasurePickupSoundSrc).play();
+            for (let j = 0; j < 1; j++) {
+                let i = ~~(Math.random() * map.tilesLocationArr.length);
+                enemies.push(new SewerynEnemy(map.tilesLocationArr[i]!.x, map.tilesLocationArr[i]!.y, "./sprites/sewerynEnemy.png"));
+            }
         }
     }
 
@@ -100,6 +113,12 @@ export class Player {
         ctx.font = "80px Freckle Face, system-ui";
         ctx.fillStyle = "white";
         ctx.fillText(this.treasureGathered + " / " + map.treasuresTotalCount, 150, 95);
+    }
+
+    die() {
+        if (!this.isAlive) return;
+        this.isAlive = false;
+        location.reload();
     }
 
     draw(ctx: CanvasRenderingContext2D, map: TileMap, xD: number, yD: number) {

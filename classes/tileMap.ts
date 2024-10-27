@@ -30,10 +30,10 @@ export class TileMap {
 
     getTileNeighbours(t: Tile): { [key: string]: (Tile | null) } {
         return {
-            left: t.x > 0 && this.mapArr[t.y][t.x - 1] != null ? this.mapArr[t.y][t.x - 1] : null,
-            right: t.x < this.mapArr[t.y].length - 1 && this.mapArr[t.y][t.x + 1] != null ? this.mapArr[t.y][t.x + 1] : null,
             up: t.y > 0 && this.mapArr[t.y - 1][t.x] != null ? this.mapArr[t.y - 1][t.x] : null,
+            right: t.x < this.mapArr[t.y].length - 1 && this.mapArr[t.y][t.x + 1] != null ? this.mapArr[t.y][t.x + 1] : null,
             down: t.y < this.mapArr.length - 1 &&this. mapArr[t.y + 1][t.x] != null ? this.mapArr[t.y + 1][t.x] : null,
+            left: t.x > 0 && this.mapArr[t.y][t.x - 1] != null ? this.mapArr[t.y][t.x - 1] : null,
         }
     }
 

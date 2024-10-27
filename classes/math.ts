@@ -26,8 +26,8 @@ export class Vector2 {
 }
 
 export enum Direction {
-    UP = 'up',
-    DOWN = 'down',
-    LEFT = 'left',
-    RIGHT = 'right'
+    UP = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    LEFT = 3
 }
