@@ -27,6 +27,7 @@ let cameraPos: Vector2 = new Vector2(0, 0);
 let cameraPosDelta: Vector2 = new Vector2(0, 0);
 let gameTick: number;
 
+
 function start() {
     map = new TileMap(100, 1);
     map.generateMap(180);
@@ -48,7 +49,8 @@ function update() {
 
     enemies.forEach(enemy => {
         if (pastPlayerX == enemy.x && pastPlayerY == enemy.y) player.die();
-        enemy.updateMovement(map, gameTick);
+        enemy.queueMoves(map, gameTick);
+        enemy.executeMoves(gameTick);
         if (player.x == enemy.x && player.y == enemy.y) player.die();
     });
 
