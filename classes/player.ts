@@ -1,6 +1,6 @@
 import {TileMap} from "./tileMap.js";
 import {Tile, TileType} from "./tile.js";
-import {Enemy, SewerynEnemy} from "./enemy.js";
+import {Enemy, NormalEnemy} from "./enemy.js";
 
 
 export class Player {
@@ -27,7 +27,7 @@ export class Player {
         this.width = width;
         this.height = height;
 
-        this.visionRange = 4;
+        this.visionRange = 12;
         this.treasureGathered = 0;
         this.positionJustChanged = false;
 
@@ -99,7 +99,7 @@ export class Player {
             new Audio(this.treasurePickupSoundSrc).play();
             for (let j = 0; j < 1; j++) {
                 let i = ~~(Math.random() * map.tilesLocationArr.length);
-                enemies.push(new SewerynEnemy(map.tilesLocationArr[i]!.x, map.tilesLocationArr[i]!.y, "./sprites/sewerynEnemy.png"));
+                enemies.push(new NormalEnemy(map.tilesLocationArr[i]!.x, map.tilesLocationArr[i]!.y, "./sprites/sewerynEnemy.png"));
             }
         }
     }

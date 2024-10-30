@@ -6,19 +6,21 @@ import {Tile} from "./tile.js";
 export abstract class Enemy {
     x: number;
     y: number;
-    hasQueued: boolean;
-    hasMoved: boolean;
     sprite: HTMLImageElement;
     moveQueue: Direction[];
+    movesToQueuePerTick: number;
+    timeFromLastMove: number;
+    timeBetweenMoves: number;
 
-    constructor(x: number, y: number, sprite_src: string) {
+    constructor(x: number, y: number, sprite_src: string, movesToQueuePerTick: number, timeBetweenMoves: number) {
         this.x = x;
         this.y = y;
-        this.hasMoved = false;
-        this.hasQueued = false;
         this.sprite = new Image();
         this.sprite.src = sprite_src;
         this.moveQueue = [];
+        this.timeFromLastMove = -1;
+        this.movesToQueuePerTick = movesToQueuePerTick;
+        this.timeBetweenMoves = timeBetweenMoves;
     }
 
     draw(ctx: CanvasRenderingContext2D, map: TileMap, xD: number, yD: number): void {
@@ -33,7 +35,7 @@ export abstract class Enemy {
     }
 
     _moveTowardsDirection(d: Direction): void {
-        if (this.hasMoved) return;
+        this.timeFromLastMove = Math.random() * -500;
         switch (d) {
             case Direction.UP:
                 this.y--;
@@ -48,43 +50,39 @@ export abstract class Enemy {
                 this.x++;
                 break;
         }
-        this.hasMoved = true;
     }
 
-    _executeMoveQueue(movesToExecute: number): void {
-        if (this.hasMoved) return;
-        for (let _ = 0; _ < movesToExecute; _++) {
-            let nm = this.moveQueue.pop();
-            if (nm == undefined) break;
-            this._moveTowardsDirection(nm);
-        }
-        this.hasQueued = false;
-        this.hasMoved = true;
+    _pushToMoveQueue(): void {
+        if (this.moveQueue.length >= this.movesToQueuePerTick) return;
+        for (let i = 0; i < this.movesToQueuePerTick; ++i) this.moveQueue.push(Direction.ANY);
     }
 
-    queueMoves(map: TileMap, tick: number): void {
-        if (this.hasQueued) return;
-        this._pushToMoveQueue(map, tick);
-        this.hasMoved = false;
-        this.hasQueued = true;
+    _executeMoveQueue(map: TileMap): void {
+        if (this.moveQueue.length == 0) return;
+        let d: Direction | undefined = this.moveQueue[0];
+        if (d == undefined) return;
+        this.moveQueue.shift()
+        if (d == Direction.ANY) d = this._getDirectionToMoveTowards(map);
+        if (d == undefined) return;
+        this._moveTowardsDirection(d!);
     }
 
-    abstract _pushToMoveQueue(map: TileMap, tick: number): void;
 
-    abstract executeMoves(tick: number): void;
+    abstract _getDirectionToMoveTowards(map: TileMap): Direction | undefined;
+    abstract executeMoves(map: TileMap, tick: number): void;
+    abstract queueMoves(map: TileMap, tick: number): void;
 }
 
 
-export class SewerynEnemy extends Enemy {
+export class NormalEnemy extends Enemy {
     primaryDirectionIndex: number;
 
     constructor(x: number, y: number, sprite_src: string) {
-        super(x, y, sprite_src);
+        super(x, y, sprite_src, 1, 250);
         this.primaryDirectionIndex = ~~(Math.random() * 4);
     }
 
-    _pushToMoveQueue(map: TileMap, tick: number): void {
-        if (tick % 2 == 0) return;
+    _getDirectionToMoveTowards(map: TileMap): Direction | undefined {
         let t = map.mapArr[this.y][this.x]!;
         let neighbours: { [p: string]: Tile | null } = map.getTileNeighbours(t);
         let finalDirectionIndex = this.primaryDirectionIndex;
@@ -101,11 +99,16 @@ export class SewerynEnemy extends Enemy {
             this.primaryDirectionIndex++;
             this.primaryDirectionIndex %= 4;
         }
-        this.moveQueue.push(finalDirectionIndex);
+        return finalDirectionIndex;
     }
 
-    executeMoves(tick: number): void {
+    executeMoves(map: TileMap, tick: number): void {
         if (tick % 2 == 1) return;
-        this._executeMoveQueue(1);
+        this._executeMoveQueue(map);
+    }
+
+    queueMoves(map: TileMap, tick: number): void {
+        if (tick % 2 == 0) return;
+        this._pushToMoveQueue();
     }
 }

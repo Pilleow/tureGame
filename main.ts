@@ -41,7 +41,7 @@ function start() {
     enemies = [];
 }
 
-function update() {
+function update(deltaTime: number) {
     player.updateMovement(keys, map, enemies);
     let pastPlayerX = player.x;
     let pastPlayerY = player.y;
@@ -50,7 +50,8 @@ function update() {
     enemies.forEach(enemy => {
         if (pastPlayerX == enemy.x && pastPlayerY == enemy.y) player.die();
         enemy.queueMoves(map, gameTick);
-        enemy.executeMoves(gameTick);
+        enemy.timeFromLastMove += deltaTime;
+        if (enemy.timeFromLastMove > enemy.timeBetweenMoves) enemy.executeMoves(map, gameTick);
         if (player.x == enemy.x && player.y == enemy.y) player.die();
     });
 
@@ -62,7 +63,7 @@ function update() {
     cameraPos = cameraPos.add(cameraPosDelta.scalar_mult(0.1).truncate());
 }
 
-function render() {
+function render(deltaTime: number) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     map.draw(ctx, cameraPos.x, cameraPos.y);
@@ -77,13 +78,16 @@ function render() {
     ctx.fillText(String(gameTick), 1, 11);
 }
 
-function mainloop() {
-    update();
-    render();
+let lastTime = 0;
+function mainloop(currentTime: number) {
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+    update(deltaTime);
+    render(deltaTime);
     requestAnimationFrame(mainloop);
 }
 
 
 resizeCanvas();
 start();
-mainloop();
+mainloop(0);
