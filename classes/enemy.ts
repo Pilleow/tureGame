@@ -1,5 +1,5 @@
 import {TileMap} from "./tileMap.js";
-import {Direction} from "./math.js";
+import {Direction, Vector2} from "./math.js";
 import {Tile} from "./tile.js";
 
 
@@ -21,6 +21,18 @@ export abstract class Enemy {
         this.timeFromLastMove = -1;
         this.movesToQueuePerTick = movesToQueuePerTick;
         this.timeBetweenMoves = timeBetweenMoves;
+    }
+
+    selectSpawnPoint(map: TileMap): void {
+        let spawnTile: Tile;
+        let spawnTileLoc: Vector2;
+        for (let attempt = 0; attempt < 200; attempt++) {
+            spawnTileLoc = map.tilesLocationArr[~~(Math.random() * (map.tilesLocationArr.length - 1))]!;
+            spawnTile = map.mapArr[spawnTileLoc.y][spawnTileLoc.x]!;
+            if (spawnTile.memoryTime == 0) break;
+        }
+        this.x = spawnTile!.x;
+        this.y = spawnTile!.y;
     }
 
     draw(ctx: CanvasRenderingContext2D, map: TileMap, xD: number, yD: number): void {

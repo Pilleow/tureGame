@@ -18,7 +18,6 @@ export class Player {
     positionJustChanged: boolean;
     sprite: HTMLImageElement;
     treasureSprite: HTMLImageElement;
-    startSoundPlayed: boolean;
     isAlive: boolean;
 
     constructor(x: number, y: number, width: number, height: number) {
@@ -35,7 +34,6 @@ export class Player {
         this.hasMovedDown = false;
         this.hasMovedLeft = false;
         this.hasMovedRight = false;
-        this.startSoundPlayed = false;
         this.isAlive = true;
 
         this.sprite = new Image();
@@ -77,10 +75,6 @@ export class Player {
             }
         } else this.hasMovedRight = false;
         if (positionChanged) {
-            if (!this.startSoundPlayed) {
-                new Audio("./sounds/oficjalneStwierdzenie.mp3").play();
-                this.startSoundPlayed = true;
-            }
             map.updateTilesVisibility(this);
             this.processTile(map, enemies);
         }
@@ -100,25 +94,25 @@ export class Player {
             for (let j = 0; j < 1; j++) {
                 let i = ~~(Math.random() * map.tilesLocationArr.length);
                 enemies.push(new NormalEnemy(map.tilesLocationArr[i]!.x, map.tilesLocationArr[i]!.y, "./sprites/sewerynEnemy.png"));
+                enemies[enemies.length - 1].selectSpawnPoint(map);
             }
         }
     }
 
-    drawPoints(ctx: CanvasRenderingContext2D, map: TileMap) {
+    drawPoints(ctx: CanvasRenderingContext2D, map: TileMap, x: number, y: number) {
         ctx.drawImage(
             this.treasureSprite,
             0, 0, 512, 512,
-            20, 20, 100, 100
+            x, y, 100, 100
         );
         ctx.font = "80px Freckle Face, system-ui";
         ctx.fillStyle = "white";
-        ctx.fillText(this.treasureGathered + " / " + map.treasuresTotalCount, 150, 95);
+        ctx.fillText(this.treasureGathered + " / " + map.treasuresTotalCount, x + 130, y + 75);
     }
 
     die() {
         if (!this.isAlive) return;
         this.isAlive = false;
-        location.reload();
     }
 
     draw(ctx: CanvasRenderingContext2D, map: TileMap, xD: number, yD: number) {
